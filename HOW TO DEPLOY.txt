@@ -1,0 +1,58 @@
+====================================
+  BET TRACKER - DEPLOY TO VERCEL
+====================================
+
+This puts the app on a public URL so you can use it on your phone,
+same as the Polymarket tracker. One-time setup.
+
+
+STEP 1 — CREATE A GITHUB REPO
+-------------------------------------
+1. Go to https://github.com/new
+2. Repository name: bet-tracker  (or anything you want)
+3. Keep it Private or Public, your choice
+4. Do NOT check "Add a README" (this folder already has one)
+5. Click "Create repository"
+6. GitHub will show you a page with commands. Copy the URL it gives you
+   that looks like: https://github.com/YOUR-USERNAME/bet-tracker.git
+
+
+STEP 2 — PUSH THIS FOLDER TO GITHUB
+-------------------------------------
+1. Open Command Prompt (Win + R, type cmd, Enter)
+2. Paste this and hit Enter:
+   cd "C:\Users\peter\Desktop\Bots and Trading\Fake Fanduel Bot"
+3. Paste this, replacing the URL with the one GitHub gave you:
+   git remote add origin https://github.com/YOUR-USERNAME/bet-tracker.git
+4. Then run:
+   git branch -M main
+   git push -u origin main
+
+
+STEP 3 — CONNECT VERCEL
+-------------------------------------
+1. Go to https://vercel.com and log in (or sign up with your GitHub account)
+2. Click "Add New" -> "Project"
+3. Find "bet-tracker" in the list and click "Import"
+4. Vercel auto-detects Vite. Leave all settings as default.
+5. Click "Deploy"
+6. After ~30 seconds you'll get a URL like:
+   https://bet-tracker-yourname.vercel.app
+7. Open that URL on your phone — bookmark it or add to home screen.
+
+
+EVERY TIME YOU MAKE CHANGES LATER
+-------------------------------------
+1. cd "C:\Users\peter\Desktop\Bots and Trading\Fake Fanduel Bot"
+2. git add -A
+3. git commit -m "describe what changed"
+4. git push
+Vercel automatically redeploys within a minute of every push.
+
+
+NOTES
+-------------------------------------
+- There's no login/database — this is a pure front-end app.
+- Each browser (phone vs computer) has its own separate balance/bets
+  in localStorage. Use Settings -> Export Backup / Import Backup to
+  move your data between devices.
