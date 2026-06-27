@@ -30,12 +30,8 @@ function HomeIcon({ active }) {
 function SportsIcon({ active }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke={active ? "#1493ff" : "#8b94a7"} strokeWidth="2" />
-      <path
-        d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"
-        stroke={active ? "#1493ff" : "#8b94a7"}
-        strokeWidth="2"
-      />
+      <circle cx="11" cy="11" r="7" stroke={active ? "#1493ff" : "#8a8d93"} strokeWidth="2" />
+      <path d="M21 21l-4.3-4.3" stroke={active ? "#1493ff" : "#8a8d93"} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

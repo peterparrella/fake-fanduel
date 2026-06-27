@@ -7,23 +7,17 @@ export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle }) {
   const open = bets.filter((b) => b.status === "open");
 
   return (
-    <div className="px-4 py-4">
-      <div className="flex items-center gap-2 mb-4">
-        <h1 className="text-white font-bold text-xl">Live Now</h1>
+    <div>
+      <div className="flex items-center justify-center gap-2 px-4 pt-4 pb-4">
+        <h1 className="text-white font-bold text-[19px]">Live Now</h1>
         <Pill color="solidRed">● LIVE</Pill>
       </div>
       {open.length === 0 ? (
         <p className="text-fd-gray text-sm text-center py-10">No open bets in play.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-2">
           {open.map((bet) => (
-            <BetCard
-              key={bet.id}
-              bet={bet}
-              onMarkWin={onMarkWin}
-              onMarkLoss={onMarkLoss}
-              onLegToggle={onLegToggle}
-            />
+            <BetCard key={bet.id} bet={bet} onMarkWin={onMarkWin} onMarkLoss={onMarkLoss} onLegToggle={onLegToggle} />
           ))}
         </div>
       )}

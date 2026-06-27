@@ -16,15 +16,29 @@ export function Pill({ children, color = "gray", className = "" }) {
   );
 }
 
-export function BetTypeBadge({ type }) {
+const RIBBON_TYPES = new Set(["parlay", "sgp", "sgpplus"]);
+
+export function RibbonBadge({ type }) {
+  if (!RIBBON_TYPES.has(type)) return null;
+  const label = type === "sgp" ? "SGP" : type === "sgpplus" ? "SGP+" : "PARLAY";
+  return (
+    <span
+      className="relative inline-flex items-center bg-fd-gold text-black text-[10px] font-extrabold italic px-2 py-[3px] shrink-0"
+      style={{ clipPath: "polygon(0 0, 100% 0, 88% 100%, 0% 100%)" }}
+    >
+      {label}
+    </span>
+  );
+}
+
+export function MarketLabel({ betType }) {
   const map = {
-    moneyline: { label: "ML", color: "gray" },
-    spread: { label: "Spread", color: "gray" },
-    total: { label: "Total", color: "gray" },
-    parlay: { label: "Parlay", color: "blue" },
-    sgp: { label: "SGP", color: "blue" },
-    sgpplus: { label: "SGP+", color: "blue" },
+    moneyline: "MONEYLINE",
+    spread: "SPREAD",
+    total: "TOTAL",
+    parlay: "PARLAY",
+    sgp: "SAME GAME PARLAY",
+    sgpplus: "SAME GAME PARLAY+",
   };
-  const cfg = map[type] || { label: type, color: "gray" };
-  return <Pill color={cfg.color}>{cfg.label}</Pill>;
+  return map[betType] || betType.toUpperCase();
 }

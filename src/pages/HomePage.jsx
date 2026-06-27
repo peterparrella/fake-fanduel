@@ -41,15 +41,11 @@ export default function HomePage({ onPlaceBet, onMarkWin, onMarkLoss, onLegToggl
         {recent.length === 0 ? (
           <p className="text-fd-gray text-sm">No bets yet. Place your first bet to get started.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 -mx-4">
             {recent.map((bet) => (
-              <BetCard
-                key={bet.id}
-                bet={bet}
-                onMarkWin={onMarkWin}
-                onMarkLoss={onMarkLoss}
-                onLegToggle={onLegToggle}
-              />
+              <div key={bet.id} className="border-y border-fd-border">
+                <BetCard bet={bet} onMarkWin={onMarkWin} onMarkLoss={onMarkLoss} onLegToggle={onLegToggle} />
+              </div>
             ))}
           </div>
         )}
