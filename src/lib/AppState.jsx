@@ -90,11 +90,28 @@ export function AppStateProvider({ children }) {
     setBets((prev) =>
       prev.map((b) => {
         if (b.id !== id) return b;
-        if (b.status === "win" && b.payout) {
+        if ((b.status === "win" || b.status === "cashedout") && b.payout) {
           setBalance((bal) => Number((bal - b.payout).toFixed(2)));
         }
         const { payout, profit, settledAt, ...rest } = b;
         return { ...rest, status: "open" };
+      })
+    );
+  }
+
+  function cashOutBet(id, amount) {
+    setBets((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        const payout = Number(amount.toFixed(2));
+        setBalance((bal) => Number((bal + payout).toFixed(2)));
+        return {
+          ...b,
+          status: "cashedout",
+          payout,
+          profit: Number((payout - b.wagerDollars).toFixed(2)),
+          settledAt: new Date().toISOString(),
+        };
       })
     );
   }
@@ -171,9 +188,9 @@ export function AppStateProvider({ children }) {
   }
 
   const stats = useMemo(() => {
-    const settled = bets.filter((b) => b.status === "win" || b.status === "loss");
-    const wins = settled.filter((b) => b.status === "win");
-    const losses = settled.filter((b) => b.status === "loss");
+    const settled = bets.filter((b) => b.status === "win" || b.status === "loss" || b.status === "cashedout");
+    const wins = settled.filter((b) => b.status === "win" || (b.status === "cashedout" && b.profit > 0));
+    const losses = settled.filter((b) => b.status === "loss" || (b.status === "cashedout" && b.profit <= 0));
     const totalWagered = settled.reduce((sum, b) => sum + b.wagerDollars, 0);
     const totalProfit = settled.reduce((sum, b) => sum + (b.profit || 0), 0);
     const roi = totalWagered > 0 ? (totalProfit / totalWagered) * 100 : 0;
@@ -198,6 +215,7 @@ export function AppStateProvider({ children }) {
     activateSavedBet,
     settleBet,
     unsettleBet,
+    cashOutBet,
     toggleLegResult,
     deleteBet,
     resetBalance,

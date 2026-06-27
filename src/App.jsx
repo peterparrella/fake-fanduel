@@ -11,7 +11,7 @@ import LiveNowPage from "./pages/LiveNowPage";
 import AccountPage from "./pages/AccountPage";
 
 function AppShell() {
-  const { settleBet, unsettleBet, toggleLegResult, activateSavedBet, deleteBet } = useAppState();
+  const { settleBet, unsettleBet, cashOutBet, toggleLegResult, activateSavedBet, deleteBet } = useAppState();
   const [tab, setTab] = useState("home");
   const [showPlaceBet, setShowPlaceBet] = useState(false);
   const [reuseBet, setReuseBet] = useState(null);
@@ -43,6 +43,7 @@ function AppShell() {
     onMarkLoss: handleMarkLoss,
     onLegToggle: handleLegToggle,
     onUndoSettle: unsettleBet,
+    onCashOut: cashOutBet,
     onReuse: handleReuse,
     onActivate: activateSavedBet,
     onDelete: deleteBet,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatAmerican } from "../lib/odds";
+import { formatAmerican, estimateCashout } from "../lib/odds";
 import { RibbonBadge, MarketLabel, Monogram } from "./Pill";
 
 const IS_MULTI_LEG = (type) => ["parlay", "sgp", "sgpplus"].includes(type);
@@ -18,6 +18,22 @@ function fmtPlaced(iso) {
     .replace(" ", "")
     .toUpperCase();
   return `${date} ${time} ET`;
+}
+
+function buildShareText(bet) {
+  const lines = [`${bet.name} (${formatAmerican(bet.combinedAmerican)})`];
+  if (bet.legs?.length) {
+    bet.legs.forEach((leg) => lines.push(`• ${leg.description} (${formatAmerican(leg.odds)})`));
+  }
+  lines.push(`Wager: ${fmtMoney(bet.wagerDollars)}`);
+  if (bet.status === "win" || bet.status === "cashedout") {
+    lines.push(`Payout: ${fmtMoney(bet.payout)}`);
+  } else if (bet.status === "loss") {
+    lines.push(`Result: Loss`);
+  } else {
+    lines.push(`To Win: ${fmtMoney(bet.wagerDollars * bet.combinedDecimal)}`);
+  }
+  return lines.join("\n");
 }
 
 function ReuseIcon() {
@@ -73,17 +89,55 @@ export default function BetCard({
   onMarkLoss,
   onLegToggle,
   onUndoSettle,
+  onCashOut,
   onReuse,
   onActivate,
   onDelete,
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [shareMsg, setShareMsg] = useState("");
   const isMulti = IS_MULTI_LEG(bet.betType);
-  const isSettled = bet.status === "win" || bet.status === "loss";
+  const isSettled = bet.status === "win" || bet.status === "loss" || bet.status === "cashedout";
   const isSaved = bet.status === "saved";
   const isOpen = bet.status === "open";
 
   const legSummary = isMulti ? bet.legs.map((l) => l.description).join(", ") : "";
+
+  const cashout = isMulti && isOpen ? estimateCashout(bet.wagerDollars, bet.legs, bet.legResults || {}) : null;
+
+  async function handleShare() {
+    const text = buildShareText(bet);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: bet.name, text });
+      } catch {
+        // user dismissed the share sheet — no-op
+      }
+      return;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setShareMsg("Copied!");
+    } catch {
+      setShareMsg("Couldn't copy");
+    }
+    setTimeout(() => setShareMsg(""), 2000);
+  }
+
+  function handleCashOut() {
+    if (cashout?.eligible) onCashOut?.(bet.id, cashout.amount);
+  }
 
   return (
     <div className="bg-fd-card">
@@ -167,26 +221,49 @@ export default function BetCard({
         <div className="text-right">
           <div
             className={`font-extrabold text-[15px] tracking-tight ${
-              bet.status === "win" ? "text-fd-green" : "text-white"
+              bet.status === "win" || (bet.status === "cashedout" && bet.profit > 0) ? "text-fd-green" : "text-white"
             }`}
           >
             {isSettled
-              ? bet.status === "win"
-                ? fmtMoney(bet.payout)
-                : "$0.00"
+              ? bet.status === "loss"
+                ? "$0.00"
+                : fmtMoney(bet.payout)
               : fmtMoney(bet.wagerDollars * bet.combinedDecimal)}
           </div>
           <div className="text-fd-gray-dim text-[10px] font-semibold uppercase tracking-wide mt-0.5">
-            {isSettled ? (bet.status === "win" ? "Total Payout" : "Returned") : "Total Payout"}
+            {bet.status === "cashedout"
+              ? "Cashed Out"
+              : isSettled
+              ? bet.status === "win"
+                ? "Total Payout"
+                : "Returned"
+              : "Total Payout"}
           </div>
         </div>
       </div>
 
       {isOpen && (
         <div className="px-4 pb-3">
-          <div className="bg-fd-card2 text-fd-gray text-[12px] font-semibold text-center py-2.5">
-            Cash out unavailable
-          </div>
+          {cashout?.eligible ? (
+            <div className="bg-fd-card2 rounded flex items-center justify-between px-3 py-2.5">
+              <div>
+                <div className="text-fd-gray text-[10px] font-semibold uppercase tracking-wide">
+                  Estimated Cash Out
+                </div>
+                <div className="text-fd-green font-extrabold text-base">{fmtMoney(cashout.amount)}</div>
+              </div>
+              <button
+                onClick={handleCashOut}
+                className="px-4 py-2 rounded-full bg-fd-green text-black font-bold text-[12.5px] active:scale-[0.97] transition"
+              >
+                Cash Out
+              </button>
+            </div>
+          ) : (
+            <div className="bg-fd-card2 text-fd-gray text-[12px] font-semibold text-center py-2.5">
+              {cashout?.dead ? "Cash out unavailable — bet no longer live" : "Cash out unavailable"}
+            </div>
+          )}
 
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             <button
@@ -196,9 +273,12 @@ export default function BetCard({
               <ReuseIcon />
               Reuse selection
             </button>
-            <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
+            <button
+              onClick={handleShare}
+              className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
+            >
               <ShareIcon />
-              Share bet
+              {shareMsg || "Share bet"}
             </button>
           </div>
         </div>
@@ -216,13 +296,20 @@ export default function BetCard({
       )}
 
       {isSettled && (
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-3 grid grid-cols-2 gap-2.5">
           <button
             onClick={() => onReuse?.(bet)}
-            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
+            className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
           >
             <ReuseIcon />
             Reuse selection
+          </button>
+          <button
+            onClick={handleShare}
+            className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
+          >
+            <ShareIcon />
+            {shareMsg || "Share bet"}
           </button>
         </div>
       )}

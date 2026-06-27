@@ -13,6 +13,7 @@ export default function MyBetsPage({
   onMarkLoss,
   onLegToggle,
   onUndoSettle,
+  onCashOut,
   onReuse,
   onActivate,
   onDelete,
@@ -23,7 +24,7 @@ export default function MyBetsPage({
 
   const filtered = bets.filter((b) => {
     if (tab === "open") return b.status === "open";
-    if (tab === "settled") return b.status === "win" || b.status === "loss";
+    if (tab === "settled") return b.status === "win" || b.status === "loss" || b.status === "cashedout";
     return b.status === "saved";
   });
 
@@ -66,6 +67,7 @@ export default function MyBetsPage({
               onMarkLoss={onMarkLoss}
               onLegToggle={onLegToggle}
               onUndoSettle={onUndoSettle}
+              onCashOut={onCashOut}
               onReuse={onReuse}
               onActivate={onActivate}
               onDelete={onDelete}

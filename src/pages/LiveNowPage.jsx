@@ -2,7 +2,7 @@ import { useAppState } from "../lib/AppState";
 import BetCard from "../components/BetCard";
 import { Pill } from "../components/Pill";
 
-export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle, onReuse }) {
+export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle, onCashOut, onReuse }) {
   const { bets } = useAppState();
   const open = bets.filter((b) => b.status === "open");
 
@@ -23,6 +23,7 @@ export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle, onReus
               onMarkWin={onMarkWin}
               onMarkLoss={onMarkLoss}
               onLegToggle={onLegToggle}
+              onCashOut={onCashOut}
               onReuse={onReuse}
             />
           ))}

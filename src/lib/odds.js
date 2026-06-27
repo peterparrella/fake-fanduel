@@ -37,3 +37,19 @@ export function calcPayout(wagerDollars, americanOddsOrDecimal, isDecimal = fals
 export function calcProfit(wagerDollars, americanOddsOrDecimal, isDecimal = false) {
   return calcPayout(wagerDollars, americanOddsOrDecimal, isDecimal) - wagerDollars;
 }
+
+// Estimates a cash-out value for a parlay/SGP once one or more legs have a
+// known result but the bet hasn't fully settled. Any single loss kills the
+// parlay (dead bet, nothing to cash out). Each still-pending leg discounts
+// the payout to reflect the risk that remains.
+export function estimateCashout(wagerDollars, legs, legResults = {}) {
+  const dead = legs.some((_, i) => legResults[i] === "loss");
+  if (dead) return { eligible: false, dead: true, amount: 0 };
+
+  const wonOdds = legs.filter((_, i) => legResults[i] === "win").map((l) => l.odds);
+  if (wonOdds.length === 0) return { eligible: false, dead: false, amount: 0 };
+
+  const pendingCount = legs.length - wonOdds.length;
+  const decimal = combinedDecimalFromLegs(wonOdds) * Math.pow(0.7, pendingCount);
+  return { eligible: true, dead: false, amount: wagerDollars * decimal };
+}
