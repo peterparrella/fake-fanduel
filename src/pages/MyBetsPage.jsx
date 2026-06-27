@@ -19,15 +19,9 @@ export default function MyBetsPage({ onMarkWin, onMarkLoss, onLegToggle, onActiv
   });
 
   return (
-    <div>
-      <div className="relative px-4 pt-4 pb-3 flex items-center justify-center">
-        <h1 className="text-white font-bold text-[19px]">My Bets</h1>
-        <button
-          onClick={onPlaceBet}
-          className="absolute right-4 px-3 py-1.5 rounded-full bg-fd-blue text-white font-semibold text-xs"
-        >
-          + New Bet
-        </button>
+    <div className="relative min-h-[60vh]">
+      <div className="px-4 pt-4 pb-3 flex items-center justify-center">
+        <h1 className="text-white font-extrabold text-[19px] tracking-tight">My Bets</h1>
       </div>
 
       <div className="flex border-b border-fd-border">
@@ -36,7 +30,7 @@ export default function MyBetsPage({ onMarkWin, onMarkLoss, onLegToggle, onActiv
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex-1 py-3 text-[14px] font-bold border-b-2 transition ${
-              tab === t.key ? "text-fd-blue border-fd-blue" : "text-fd-gray/70 border-transparent"
+              tab === t.key ? "text-fd-blue border-fd-blue" : "text-fd-gray-dim border-transparent"
             }`}
           >
             {t.label}
@@ -68,6 +62,17 @@ export default function MyBetsPage({ onMarkWin, onMarkLoss, onLegToggle, onActiv
           ))}
         </div>
       )}
+
+      <button
+        onClick={onPlaceBet}
+        className="fixed bottom-20 right-4 w-13 h-13 rounded-full bg-fd-blue text-white shadow-lg flex items-center justify-center active:scale-95 transition z-30"
+        style={{ width: 52, height: 52 }}
+        aria-label="Place a new bet"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+      </button>
     </div>
   );
 }
@@ -77,7 +82,7 @@ function FilterPill({ label }) {
     <span className="inline-flex items-center gap-1 border border-fd-border rounded text-fd-gray text-[11px] font-semibold uppercase px-2 py-1">
       {label}
       <svg width="9" height="9" viewBox="0 0 24 24">
-        <path d="M6 9l6 6 6-6" stroke="#8a8d93" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M6 9l6 6 6-6" stroke="#999b9f" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       </svg>
     </span>
   );

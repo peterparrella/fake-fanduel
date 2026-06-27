@@ -1,21 +1,8 @@
 import { useState } from "react";
 import { formatAmerican } from "../lib/odds";
-import { RibbonBadge, MarketLabel } from "./Pill";
+import { RibbonBadge, MarketLabel, Monogram } from "./Pill";
 
 const IS_MULTI_LEG = (type) => ["parlay", "sgp", "sgpplus"].includes(type);
-
-const SPORT_ICON = {
-  MLB: "⚾",
-  NFL: "🏈",
-  NBA: "🏀",
-  NHL: "🏒",
-  Soccer: "⚽",
-  NCAAF: "🏈",
-  NCAAB: "🏀",
-  Tennis: "🎾",
-  Golf: "⛳",
-  "MMA/Boxing": "🥊",
-};
 
 function fmtMoney(n) {
   const sign = n < 0 ? "-" : "";
@@ -36,8 +23,8 @@ function fmtPlaced(iso) {
 function ReuseIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="#1493ff" strokeWidth="1.8" />
-      <path d="M12 8v8M8 12h8" stroke="#1493ff" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="9" stroke="#0073e6" strokeWidth="1.6" />
+      <path d="M12 8v8M8 12h8" stroke="#0073e6" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -47,8 +34,8 @@ function ShareIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <path
         d="M12 16V4M8 8l4-4 4 4M5 13v6a1 1 0 001 1h12a1 1 0 001-1v-6"
-        stroke="#1493ff"
-        strokeWidth="1.8"
+        stroke="#0073e6"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -81,12 +68,11 @@ function CheckDot({ status }) {
 }
 
 export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onActivate, onDelete }) {
-  const [expanded, setExpanded] = useState(IS_MULTI_LEG(bet.betType) ? false : false);
+  const [expanded, setExpanded] = useState(false);
   const isMulti = IS_MULTI_LEG(bet.betType);
   const isSettled = bet.status === "win" || bet.status === "loss";
   const isSaved = bet.status === "saved";
   const isOpen = bet.status === "open";
-  const icon = SPORT_ICON[bet.sport] || "🏅";
 
   const legSummary = isMulti ? bet.legs.map((l) => l.description).join(", ") : "";
 
@@ -99,22 +85,20 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
             {isMulti ? (
               <RibbonBadge type={bet.betType} />
             ) : (
-              <span className="w-7 h-7 rounded-full bg-fd-card2 border border-fd-border flex items-center justify-center text-sm shrink-0 mt-0.5">
-                {icon}
-              </span>
+              <Monogram text={bet.name} size={26} />
             )}
             <div className="min-w-0">
-              <h3 className="text-fd-blue font-bold text-[16px] leading-tight truncate">
+              <h3 className="text-fd-blue font-bold text-[16px] leading-tight tracking-tight truncate">
                 {isMulti ? <MarketLabel betType={bet.betType} /> : bet.name}
               </h3>
               {!isMulti && (
-                <p className="text-fd-gray text-[11px] font-medium uppercase tracking-wide mt-0.5">
+                <p className="text-fd-gray text-[10.5px] font-semibold uppercase tracking-wide mt-0.5">
                   {MarketLabel({ betType: bet.betType })}
                 </p>
               )}
             </div>
           </div>
-          <div className="text-white font-bold text-[17px] shrink-0">
+          <div className="text-white font-extrabold text-[18px] tracking-tight shrink-0">
             {formatAmerican(bet.combinedAmerican)}
           </div>
         </div>
@@ -131,14 +115,14 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
               viewBox="0 0 24 24"
               className={`shrink-0 mt-1 transition-transform ${expanded ? "rotate-180" : ""}`}
             >
-              <path d="M6 9l6 6 6-6" stroke="#1493ff" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+              <path d="M6 9l6 6 6-6" stroke="#0073e6" strokeWidth="2.2" fill="none" strokeLinecap="round" />
             </svg>
           </button>
         )}
 
         {isMulti && (
           <div className="flex items-center justify-between mt-1">
-            <span className="text-fd-gray text-[11px] uppercase tracking-wide">{bet.sport}</span>
+            <span className="text-fd-gray text-[10.5px] font-semibold uppercase tracking-wide">{bet.sport}</span>
           </div>
         )}
 
@@ -154,33 +138,7 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
                     <div className="flex-1 min-w-0">
                       <p className="text-fd-blue font-bold text-sm leading-snug">{leg.description}</p>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-white text-sm font-semibold">{formatAmerican(leg.odds)}</span>
-                      {isOpen && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => onLegToggle(bet.id, i, "win")}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                              legStatus === "win"
-                                ? "bg-fd-green text-black"
-                                : "bg-fd-card2 text-fd-green border border-fd-green/40"
-                            }`}
-                          >
-                            W
-                          </button>
-                          <button
-                            onClick={() => onLegToggle(bet.id, i, "loss")}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                              legStatus === "loss"
-                                ? "bg-fd-red text-black"
-                                : "bg-fd-card2 text-fd-red border border-fd-red/40"
-                            }`}
-                          >
-                            L
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-white text-sm font-semibold shrink-0">{formatAmerican(leg.odds)}</span>
                   </div>
                 );
               })}
@@ -190,17 +148,17 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
       </div>
 
       {/* Footer wager/payout bar */}
-      <div className="bg-fd-footer px-4 py-3 flex items-center justify-between">
+      <div className="px-4 py-3 flex items-center justify-between border-t border-fd-border">
         <div>
-          <div className="text-white font-bold text-[15px]">{fmtMoney(bet.wagerDollars)}</div>
-          <div className="text-fd-gray text-[10px] font-medium uppercase tracking-wide mt-0.5">
+          <div className="text-white font-extrabold text-[15px] tracking-tight">{fmtMoney(bet.wagerDollars)}</div>
+          <div className="text-fd-gray-dim text-[10px] font-semibold uppercase tracking-wide mt-0.5">
             Total Wager
           </div>
         </div>
         <div className="text-right">
           <div
-            className={`font-bold text-[15px] ${
-              bet.status === "loss" ? "text-white" : bet.status === "win" ? "text-fd-green" : "text-white"
+            className={`font-extrabold text-[15px] tracking-tight ${
+              bet.status === "win" ? "text-fd-green" : "text-white"
             }`}
           >
             {isSettled
@@ -209,70 +167,106 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
                 : "$0.00"
               : fmtMoney(bet.wagerDollars * bet.combinedDecimal)}
           </div>
-          <div className="text-fd-gray text-[10px] font-medium uppercase tracking-wide mt-0.5">
+          <div className="text-fd-gray-dim text-[10px] font-semibold uppercase tracking-wide mt-0.5">
             {isSettled ? (bet.status === "win" ? "Total Payout" : "Returned") : "Total Payout"}
           </div>
         </div>
       </div>
 
-      <div className="px-4 py-3">
-        {isOpen && (
-          <>
-            <div className="bg-fd-card2 text-fd-gray text-[12px] font-medium text-center rounded py-2.5">
-              Cash out unavailable
-            </div>
+      {isOpen && (
+        <div className="px-4 pb-3">
+          <div className="bg-fd-card2 text-fd-gray text-[12px] font-semibold text-center py-2.5">
+            Cash out unavailable
+          </div>
 
-            <div className="mt-3 flex items-center justify-between gap-2">
-              <button
-                onClick={() => onMarkWin(bet.id)}
-                className="flex-1 py-2 rounded-full border border-fd-green text-fd-green font-bold text-[12px] active:bg-fd-green/10"
-              >
-                Mark Win
-              </button>
-              <button
-                onClick={() => onMarkLoss(bet.id)}
-                className="flex-1 py-2 rounded-full border border-fd-red text-fd-red font-bold text-[12px] active:bg-fd-red/10"
-              >
-                Mark Loss
-              </button>
-            </div>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
+              <ReuseIcon />
+              Reuse selection
+            </button>
+            <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
+              <ShareIcon />
+              Share bet
+            </button>
+          </div>
+        </div>
+      )}
 
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
-                <ReuseIcon />
-                Reuse selection
-              </button>
-              <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
-                <ShareIcon />
-                Share bet
-              </button>
-            </div>
-          </>
-        )}
-
-        {isSaved && (
+      {isSaved && (
+        <div className="px-4 pb-3">
           <button
             onClick={() => onActivate?.(bet.id)}
             className="w-full py-2.5 rounded-full bg-fd-blue text-white font-bold text-sm active:scale-[0.98] transition"
           >
             Place This Bet
           </button>
-        )}
+        </div>
+      )}
 
-        <div className="flex items-center justify-between mt-3">
-          <span className="text-fd-gray text-[10.5px] font-mono truncate max-w-[55%]">
-            BET ID: {bet.id}
-          </span>
+      <div className="px-4 pb-3 flex items-center justify-between">
+        <span className="text-fd-gray-dim text-[10px] font-mono truncate max-w-[55%]">BET ID: {bet.id}</span>
+        <span className="text-fd-gray-dim text-[10px] font-medium">PLACED: {fmtPlaced(bet.placedAt)}</span>
+      </div>
+
+      {/* Tracker-only controls — kept visually distinct from the FanDuel chrome above */}
+      {isOpen && (
+        <div className="px-4 pb-4 pt-2 border-t border-dashed border-fd-border/60 bg-fd-card2/30">
+          <p className="text-fd-gray-dim text-[9.5px] font-semibold uppercase tracking-wider mb-2">
+            Tracker · Settle this bet
+          </p>
+          {isMulti && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {bet.legs.map((leg, i) => (
+                <div key={i} className="flex items-center gap-1 bg-fd-card border border-fd-border rounded px-1.5 py-1">
+                  <span className="text-[10px] text-fd-gray truncate max-w-[70px]">{leg.description}</span>
+                  <button
+                    onClick={() => onLegToggle(bet.id, i, "win")}
+                    className={`text-[9px] font-bold px-1 rounded ${
+                      bet.legResults?.[i] === "win"
+                        ? "bg-fd-green text-black"
+                        : "text-fd-green/70"
+                    }`}
+                  >
+                    W
+                  </button>
+                  <button
+                    onClick={() => onLegToggle(bet.id, i, "loss")}
+                    className={`text-[9px] font-bold px-1 rounded ${
+                      bet.legResults?.[i] === "loss"
+                        ? "bg-fd-red text-black"
+                        : "text-fd-red/70"
+                    }`}
+                  >
+                    L
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2">
-            {isSaved && (
-              <button onClick={() => onDelete?.(bet.id)} className="text-fd-red text-[10.5px] font-semibold">
-                Delete
-              </button>
-            )}
-            <span className="text-fd-gray text-[10.5px] font-medium">PLACED: {fmtPlaced(bet.placedAt)}</span>
+            <button
+              onClick={() => onMarkWin(bet.id)}
+              className="flex-1 py-1.5 rounded border border-fd-green/40 text-fd-green font-semibold text-[11px]"
+            >
+              Mark Win
+            </button>
+            <button
+              onClick={() => onMarkLoss(bet.id)}
+              className="flex-1 py-1.5 rounded border border-fd-red/40 text-fd-red font-semibold text-[11px]"
+            >
+              Mark Loss
+            </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {isSaved && (
+        <div className="px-4 pb-3 -mt-1 flex justify-end">
+          <button onClick={() => onDelete?.(bet.id)} className="text-fd-red text-[10.5px] font-semibold">
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }

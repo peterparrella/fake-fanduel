@@ -22,11 +22,19 @@ export function RibbonBadge({ type }) {
   if (!RIBBON_TYPES.has(type)) return null;
   const label = type === "sgp" ? "SGP" : type === "sgpplus" ? "SGP+" : "PARLAY";
   return (
-    <span
-      className="relative inline-flex items-center bg-fd-gold text-black text-[10px] font-extrabold italic px-2 py-[3px] shrink-0"
-      style={{ clipPath: "polygon(0 0, 100% 0, 88% 100%, 0% 100%)" }}
-    >
-      {label}
+    <span className="relative inline-flex items-center shrink-0" style={{ height: 18 }}>
+      <svg width={label === "PARLAY" ? 58 : 40} height="18" viewBox={`0 0 ${label === "PARLAY" ? 58 : 40} 18`}>
+        <polygon
+          points={`0,0 ${label === "PARLAY" ? 58 : 40},0 ${(label === "PARLAY" ? 58 : 40) - 6},18 0,18`}
+          fill="#ffc845"
+        />
+      </svg>
+      <span
+        className="absolute inset-0 flex items-center justify-center text-black font-extrabold italic tracking-tight"
+        style={{ fontSize: 10, paddingRight: 6 }}
+      >
+        {label}
+      </span>
     </span>
   );
 }
@@ -41,4 +49,32 @@ export function MarketLabel({ betType }) {
     sgpplus: "SAME GAME PARLAY+",
   };
   return map[betType] || betType.toUpperCase();
+}
+
+const MONOGRAM_COLORS = [
+  "#7c3aed", "#0ea5e9", "#16a34a", "#dc2626", "#d97706", "#0891b2", "#db2777", "#4f46e5",
+];
+
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+export function Monogram({ text, size = 28 }) {
+  const clean = (text || "?").trim();
+  const initials = clean
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("") || "?";
+  const color = MONOGRAM_COLORS[hashStr(clean) % MONOGRAM_COLORS.length];
+  return (
+    <span
+      className="rounded-full flex items-center justify-center text-white font-bold shrink-0"
+      style={{ width: size, height: size, backgroundColor: color, fontSize: size * 0.36 }}
+    >
+      {initials}
+    </span>
+  );
 }

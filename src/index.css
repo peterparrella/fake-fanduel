@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-fd-bg: #060708;
-  --color-fd-card: #0c0d10;
-  --color-fd-card2: #15171c;
-  --color-fd-footer: #131418;
-  --color-fd-border: #1e2026;
+  --color-fd-bg: #000000;
+  --color-fd-card: #0a0a0c;
+  --color-fd-card2: #1c1d21;
+  --color-fd-footer: #0a0a0c;
+  --color-fd-border: #1a1b1e;
   --color-fd-divider: #000000;
-  --color-fd-blue: #1493ff;
-  --color-fd-blue-dark: #0a6fd1;
+  --color-fd-blue: #0073e6;
+  --color-fd-blue-dark: #005bb8;
   --color-fd-green: #00d672;
   --color-fd-red: #ff4747;
-  --color-fd-gray: #8a8d93;
-  --color-fd-gold: #ffc52f;
-  --color-fd-navy: #0a0b0d;
+  --color-fd-gray: #999b9f;
+  --color-fd-gray-dim: #6b6d72;
+  --color-fd-gold: #ffc845;
+  --color-fd-navy: #000000;
 }
 
 html, body, #root {
-  background-color: #060708;
+  background-color: #000000;
   min-height: 100vh;
   margin: 0;
 }
@@ -28,7 +29,8 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.1px;
 }
 
 ::-webkit-scrollbar {
