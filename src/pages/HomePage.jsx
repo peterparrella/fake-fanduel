@@ -1,7 +1,7 @@
 import { useAppState } from "../lib/AppState";
 import BetCard from "../components/BetCard";
 
-export default function HomePage({ onPlaceBet, onMarkWin, onMarkLoss, onLegToggle }) {
+export default function HomePage({ onPlaceBet, onMarkWin, onMarkLoss, onLegToggle, onUndoSettle }) {
   const { balance, stats, bets } = useAppState();
   const recent = bets.filter((b) => !b.savedOnly).slice(0, 5);
   const record = `${stats.wins}-${stats.losses}`;
@@ -44,7 +44,13 @@ export default function HomePage({ onPlaceBet, onMarkWin, onMarkLoss, onLegToggl
           <div className="space-y-3 -mx-4">
             {recent.map((bet) => (
               <div key={bet.id} className="border-y border-fd-border">
-                <BetCard bet={bet} onMarkWin={onMarkWin} onMarkLoss={onMarkLoss} onLegToggle={onLegToggle} />
+                <BetCard
+                  bet={bet}
+                  onMarkWin={onMarkWin}
+                  onMarkLoss={onMarkLoss}
+                  onLegToggle={onLegToggle}
+                  onUndoSettle={onUndoSettle}
+                />
               </div>
             ))}
           </div>

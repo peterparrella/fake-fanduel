@@ -8,7 +8,15 @@ const TABS = [
   { key: "saved", label: "Saved" },
 ];
 
-export default function MyBetsPage({ onMarkWin, onMarkLoss, onLegToggle, onActivate, onDelete, onPlaceBet }) {
+export default function MyBetsPage({
+  onMarkWin,
+  onMarkLoss,
+  onLegToggle,
+  onUndoSettle,
+  onActivate,
+  onDelete,
+  onPlaceBet,
+}) {
   const { bets } = useAppState();
   const [tab, setTab] = useState("open");
 
@@ -56,6 +64,7 @@ export default function MyBetsPage({ onMarkWin, onMarkLoss, onLegToggle, onActiv
               onMarkWin={onMarkWin}
               onMarkLoss={onMarkLoss}
               onLegToggle={onLegToggle}
+              onUndoSettle={onUndoSettle}
               onActivate={onActivate}
               onDelete={onDelete}
             />

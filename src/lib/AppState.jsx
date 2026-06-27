@@ -86,6 +86,19 @@ export function AppStateProvider({ children }) {
     );
   }
 
+  function unsettleBet(id) {
+    setBets((prev) =>
+      prev.map((b) => {
+        if (b.id !== id) return b;
+        if (b.status === "win" && b.payout) {
+          setBalance((bal) => Number((bal - b.payout).toFixed(2)));
+        }
+        const { payout, profit, settledAt, ...rest } = b;
+        return { ...rest, status: "open" };
+      })
+    );
+  }
+
   function toggleLegResult(id, legIndex, result) {
     setBets((prev) =>
       prev.map((b) => {
@@ -184,6 +197,7 @@ export function AppStateProvider({ children }) {
     saveBetForLater,
     activateSavedBet,
     settleBet,
+    unsettleBet,
     toggleLegResult,
     deleteBet,
     resetBalance,

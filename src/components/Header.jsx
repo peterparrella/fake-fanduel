@@ -23,9 +23,6 @@ export default function Header({ title = "FanDuel", onSettings }) {
     <header className="sticky top-0 z-30 bg-fd-navy/95 backdrop-blur border-b border-fd-border">
       <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-fd-blue flex items-center justify-center font-bold text-white text-sm">
-            FD
-          </div>
           <span className="text-white font-bold text-lg tracking-tight">{title}</span>
         </div>
         <button

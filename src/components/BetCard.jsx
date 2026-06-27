@@ -67,7 +67,7 @@ function CheckDot({ status }) {
   );
 }
 
-export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onActivate, onDelete }) {
+export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onUndoSettle, onActivate, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const isMulti = IS_MULTI_LEG(bet.betType);
   const isSettled = bet.status === "win" || bet.status === "loss";
@@ -264,6 +264,26 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onAct
         <div className="px-4 pb-3 -mt-1 flex justify-end">
           <button onClick={() => onDelete?.(bet.id)} className="text-fd-red text-[10.5px] font-semibold">
             Delete
+          </button>
+        </div>
+      )}
+
+      {isSettled && (
+        <div className="px-4 pb-4 pt-2 border-t border-dashed border-fd-border/60 bg-fd-card2/30">
+          <button
+            onClick={() => onUndoSettle?.(bet.id)}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded border border-fd-border text-fd-gray font-semibold text-[11px] active:bg-fd-card2"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 7L4 12l5 5M4 12h11a5 5 0 010 10h-1"
+                stroke="#999b9f"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Undo · Mark as Open
           </button>
         </div>
       )}
