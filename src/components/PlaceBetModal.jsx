@@ -13,6 +13,40 @@ const BET_TYPES = [
 ];
 const MULTI_LEG_TYPES = ["parlay", "sgp", "sgpplus"];
 
+function flipSign(value, sign) {
+  const magnitude = String(value ?? "").replace(/^[-+]/, "");
+  if (sign === "-") return magnitude ? `-${magnitude}` : "-";
+  return magnitude;
+}
+
+function OddsSignToggle({ value, onChange }) {
+  const isNegative = String(value ?? "").trim().startsWith("-");
+  return (
+    <div className="flex bg-fd-card2 rounded-lg border border-fd-border overflow-hidden shrink-0">
+      <button
+        type="button"
+        onClick={() => onChange(flipSign(value, "-"))}
+        className={`w-7 h-full flex items-center justify-center font-bold text-sm ${
+          isNegative ? "bg-fd-red text-white" : "text-fd-gray"
+        }`}
+        aria-label="Negative odds"
+      >
+        −
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange(flipSign(value, "+"))}
+        className={`w-7 h-full flex items-center justify-center font-bold text-sm ${
+          !isNegative ? "bg-fd-green text-black" : "text-fd-gray"
+        }`}
+        aria-label="Positive odds"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
 export default function PlaceBetModal({ onClose }) {
   const { unitSize, balance, placeBet, saveBetForLater } = useAppState();
   const [name, setName] = useState("");
@@ -176,12 +210,15 @@ export default function PlaceBetModal({ onClose }) {
                       placeholder='Leg description (e.g. "Spain To Reach The Final")'
                       className="flex-1 bg-fd-card border border-fd-border rounded-xl px-3 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue text-sm"
                     />
+                    <OddsSignToggle value={leg.odds} onChange={(v) => updateLeg(i, "odds", v)} />
                     <input
-                      value={leg.odds}
-                      onChange={(e) => updateLeg(i, "odds", e.target.value)}
-                      placeholder="+190"
+                      value={String(leg.odds ?? "").replace(/^[-+]/, "")}
+                      onChange={(e) =>
+                        updateLeg(i, "odds", flipSign(e.target.value, leg.odds?.startsWith("-") ? "-" : "+"))
+                      }
+                      placeholder="190"
                       inputMode="numeric"
-                      className="w-20 bg-fd-card border border-fd-border rounded-xl px-2 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue text-sm text-center"
+                      className="w-16 bg-fd-card border border-fd-border rounded-xl px-2 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue text-sm text-center"
                     />
                     {legs.length > 1 && (
                       <button
@@ -205,13 +242,18 @@ export default function PlaceBetModal({ onClose }) {
           ) : (
             <div>
               <label className="text-xs text-fd-gray font-semibold uppercase">Odds (American)</label>
-              <input
-                value={singleOdds}
-                onChange={(e) => setSingleOdds(e.target.value)}
-                placeholder="-154"
-                inputMode="numeric"
-                className="mt-1 w-full bg-fd-card border border-fd-border rounded-xl px-3 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue"
-              />
+              <div className="mt-1 flex gap-2">
+                <OddsSignToggle value={singleOdds} onChange={setSingleOdds} />
+                <input
+                  value={String(singleOdds ?? "").replace(/^[-+]/, "")}
+                  onChange={(e) =>
+                    setSingleOdds(flipSign(e.target.value, singleOdds?.startsWith("-") ? "-" : "+"))
+                  }
+                  placeholder="154"
+                  inputMode="numeric"
+                  className="flex-1 bg-fd-card border border-fd-border rounded-xl px-3 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue"
+                />
+              </div>
             </div>
           )}
 
