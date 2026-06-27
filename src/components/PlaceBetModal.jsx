@@ -20,7 +20,8 @@ export default function PlaceBetModal({ onClose }) {
   const [sport, setSport] = useState("MLB");
   const [singleOdds, setSingleOdds] = useState("");
   const [legs, setLegs] = useState([{ description: "", odds: "" }]);
-  const [wagerUnits, setWagerUnits] = useState("");
+  const [wagerMode, setWagerMode] = useState("units");
+  const [wagerInput, setWagerInput] = useState("");
   const [error, setError] = useState("");
 
   const isMulti = MULTI_LEG_TYPES.includes(betType);
@@ -47,8 +48,9 @@ export default function PlaceBetModal({ onClose }) {
     return combinedAmerican > 0 ? combinedAmerican / 100 + 1 : 100 / Math.abs(combinedAmerican) + 1;
   }, [isMulti, validLegs, combinedAmerican]);
 
-  const units = Number(wagerUnits) || 0;
-  const wagerDollars = units * unitSize;
+  const rawWager = Number(wagerInput) || 0;
+  const units = wagerMode === "units" ? rawWager : rawWager / unitSize;
+  const wagerDollars = wagerMode === "units" ? rawWager * unitSize : rawWager;
   const payout = wagerDollars * combinedDecimal;
   const profit = payout - wagerDollars;
 
@@ -214,17 +216,51 @@ export default function PlaceBetModal({ onClose }) {
           )}
 
           <div>
-            <label className="text-xs text-fd-gray font-semibold uppercase">Wager (Units)</label>
-            <input
-              value={wagerUnits}
-              onChange={(e) => setWagerUnits(e.target.value)}
-              placeholder="1"
-              inputMode="decimal"
-              className="mt-1 w-full bg-fd-card border border-fd-border rounded-xl px-3 py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue"
-            />
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-fd-gray font-semibold uppercase">Wager</label>
+              <div className="flex bg-fd-card2 rounded-full p-0.5 border border-fd-border">
+                {[
+                  { key: "units", label: "Units" },
+                  { key: "usd", label: "USD" },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setWagerMode(opt.key)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
+                      wagerMode === opt.key ? "bg-fd-blue text-white" : "text-fd-gray"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-1.5 relative">
+              {wagerMode === "usd" && (
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-fd-gray">$</span>
+              )}
+              <input
+                value={wagerInput}
+                onChange={(e) => setWagerInput(e.target.value)}
+                placeholder={wagerMode === "units" ? "1" : "25"}
+                inputMode="decimal"
+                className={`w-full bg-fd-card border border-fd-border rounded-xl py-2.5 text-white placeholder:text-fd-gray/60 outline-none focus:border-fd-blue ${
+                  wagerMode === "usd" ? "pl-7 pr-3" : "px-3"
+                }`}
+              />
+            </div>
             <p className="mt-1 text-sm text-fd-gray">
-              = <span className="text-white font-semibold">${wagerDollars.toFixed(2)}</span>{" "}
-              <span className="text-xs">(1u = ${unitSize})</span>
+              {wagerMode === "units" ? (
+                <>
+                  = <span className="text-white font-semibold">${wagerDollars.toFixed(2)}</span>{" "}
+                  <span className="text-xs">(1u = ${unitSize})</span>
+                </>
+              ) : (
+                <>
+                  = <span className="text-white font-semibold">{units.toFixed(2)}u</span>{" "}
+                  <span className="text-xs">(1u = ${unitSize})</span>
+                </>
+              )}
             </p>
           </div>
 
