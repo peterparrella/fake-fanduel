@@ -47,13 +47,22 @@ function OddsSignToggle({ value, onChange }) {
   );
 }
 
-export default function PlaceBetModal({ onClose }) {
+export default function PlaceBetModal({ onClose, initialBet }) {
   const { unitSize, balance, placeBet, saveBetForLater } = useAppState();
-  const [name, setName] = useState("");
-  const [betType, setBetType] = useState("moneyline");
-  const [sport, setSport] = useState("MLB");
-  const [singleOdds, setSingleOdds] = useState("");
-  const [legs, setLegs] = useState([{ description: "", odds: "" }]);
+  const isMultiInitial = initialBet && MULTI_LEG_TYPES.includes(initialBet.betType);
+  const [name, setName] = useState(initialBet?.name ?? "");
+  const [betType, setBetType] = useState(initialBet?.betType ?? "moneyline");
+  const [sport, setSport] = useState(initialBet?.sport ?? "MLB");
+  const [singleOdds, setSingleOdds] = useState(
+    initialBet && !isMultiInitial && initialBet.combinedAmerican !== null
+      ? String(initialBet.combinedAmerican)
+      : ""
+  );
+  const [legs, setLegs] = useState(
+    isMultiInitial && initialBet.legs?.length
+      ? initialBet.legs.map((l) => ({ description: l.description, odds: String(l.odds) }))
+      : [{ description: "", odds: "" }]
+  );
   const [wagerMode, setWagerMode] = useState("units");
   const [wagerInput, setWagerInput] = useState("");
   const [error, setError] = useState("");
@@ -149,6 +158,11 @@ export default function PlaceBetModal({ onClose }) {
         </div>
 
         <div className="p-4 space-y-5">
+          {initialBet && (
+            <div className="text-fd-blue text-xs font-semibold bg-fd-blue/10 border border-fd-blue/30 rounded-xl px-3 py-2">
+              Reused selection — edit and confirm to place again.
+            </div>
+          )}
           <div>
             <label className="text-xs text-fd-gray font-semibold uppercase">Bet Name</label>
             <input

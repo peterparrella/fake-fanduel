@@ -67,7 +67,16 @@ function CheckDot({ status }) {
   );
 }
 
-export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onUndoSettle, onActivate, onDelete }) {
+export default function BetCard({
+  bet,
+  onMarkWin,
+  onMarkLoss,
+  onLegToggle,
+  onUndoSettle,
+  onReuse,
+  onActivate,
+  onDelete,
+}) {
   const [expanded, setExpanded] = useState(false);
   const isMulti = IS_MULTI_LEG(bet.betType);
   const isSettled = bet.status === "win" || bet.status === "loss";
@@ -180,7 +189,10 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onUnd
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2.5">
-            <button className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10">
+            <button
+              onClick={() => onReuse?.(bet)}
+              className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
+            >
               <ReuseIcon />
               Reuse selection
             </button>
@@ -199,6 +211,18 @@ export default function BetCard({ bet, onMarkWin, onMarkLoss, onLegToggle, onUnd
             className="w-full py-2.5 rounded-full bg-fd-blue text-white font-bold text-sm active:scale-[0.98] transition"
           >
             Place This Bet
+          </button>
+        </div>
+      )}
+
+      {isSettled && (
+        <div className="px-4 pb-3">
+          <button
+            onClick={() => onReuse?.(bet)}
+            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
+          >
+            <ReuseIcon />
+            Reuse selection
           </button>
         </div>
       )}

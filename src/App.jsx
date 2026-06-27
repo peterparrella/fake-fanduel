@@ -14,7 +14,18 @@ function AppShell() {
   const { settleBet, unsettleBet, toggleLegResult, activateSavedBet, deleteBet } = useAppState();
   const [tab, setTab] = useState("home");
   const [showPlaceBet, setShowPlaceBet] = useState(false);
+  const [reuseBet, setReuseBet] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+
+  function handleReuse(bet) {
+    setReuseBet(bet);
+    setShowPlaceBet(true);
+  }
+
+  function closePlaceBet() {
+    setShowPlaceBet(false);
+    setReuseBet(null);
+  }
 
   function handleMarkWin(id) {
     settleBet(id, "win");
@@ -32,6 +43,7 @@ function AppShell() {
     onMarkLoss: handleMarkLoss,
     onLegToggle: handleLegToggle,
     onUndoSettle: unsettleBet,
+    onReuse: handleReuse,
     onActivate: activateSavedBet,
     onDelete: deleteBet,
     onSettings: () => setShowSettings(true),
@@ -48,7 +60,7 @@ function AppShell() {
         {tab === "account" && <AccountPage {...pageProps} />}
       </main>
       <BottomNav active={tab} onChange={setTab} />
-      {showPlaceBet && <PlaceBetModal onClose={() => setShowPlaceBet(false)} />}
+      {showPlaceBet && <PlaceBetModal onClose={closePlaceBet} initialBet={reuseBet} />}
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>
   );

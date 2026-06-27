@@ -13,6 +13,7 @@ export default function MyBetsPage({
   onMarkLoss,
   onLegToggle,
   onUndoSettle,
+  onReuse,
   onActivate,
   onDelete,
   onPlaceBet,
@@ -65,6 +66,7 @@ export default function MyBetsPage({
               onMarkLoss={onMarkLoss}
               onLegToggle={onLegToggle}
               onUndoSettle={onUndoSettle}
+              onReuse={onReuse}
               onActivate={onActivate}
               onDelete={onDelete}
             />

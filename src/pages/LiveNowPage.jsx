@@ -2,7 +2,7 @@ import { useAppState } from "../lib/AppState";
 import BetCard from "../components/BetCard";
 import { Pill } from "../components/Pill";
 
-export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle }) {
+export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle, onReuse }) {
   const { bets } = useAppState();
   const open = bets.filter((b) => b.status === "open");
 
@@ -17,7 +17,14 @@ export default function LiveNowPage({ onMarkWin, onMarkLoss, onLegToggle }) {
       ) : (
         <div className="flex flex-col gap-2">
           {open.map((bet) => (
-            <BetCard key={bet.id} bet={bet} onMarkWin={onMarkWin} onMarkLoss={onMarkLoss} onLegToggle={onLegToggle} />
+            <BetCard
+              key={bet.id}
+              bet={bet}
+              onMarkWin={onMarkWin}
+              onMarkLoss={onMarkLoss}
+              onLegToggle={onLegToggle}
+              onReuse={onReuse}
+            />
           ))}
         </div>
       )}
