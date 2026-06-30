@@ -67,52 +67,56 @@ export function AppStateProvider({ children }) {
   }
 
   function settleBet(id, result, legResults) {
-    setBets((prev) =>
-      prev.map((b) => {
-        if (b.id !== id) return b;
-        const updated = { ...b, status: result, settledAt: new Date().toISOString() };
-        if (legResults) updated.legResults = legResults;
-        if (result === "win") {
-          const payout = b.wagerDollars * b.combinedDecimal;
-          updated.payout = Number(payout.toFixed(2));
-          updated.profit = Number((payout - b.wagerDollars).toFixed(2));
-          setBalance((bal) => Number((bal + payout).toFixed(2)));
-        } else {
-          updated.payout = 0;
-          updated.profit = Number((-b.wagerDollars).toFixed(2));
-        }
-        return updated;
-      })
-    );
+    const bet = bets.find((b) => b.id === id);
+    if (!bet) return;
+
+    const updated = { ...bet, status: result, settledAt: new Date().toISOString() };
+    if (legResults) updated.legResults = legResults;
+
+    if (result === "win") {
+      const payout = bet.wagerDollars * bet.combinedDecimal;
+      updated.payout = Number(payout.toFixed(2));
+      updated.profit = Number((payout - bet.wagerDollars).toFixed(2));
+      setBalance((bal) => Number((bal + updated.payout).toFixed(2)));
+    } else {
+      updated.payout = 0;
+      updated.profit = Number((-bet.wagerDollars).toFixed(2));
+    }
+
+    setBets((prev) => prev.map((b) => (b.id === id ? updated : b)));
   }
 
   function unsettleBet(id) {
-    setBets((prev) =>
-      prev.map((b) => {
-        if (b.id !== id) return b;
-        if ((b.status === "win" || b.status === "cashedout") && b.payout) {
-          setBalance((bal) => Number((bal - b.payout).toFixed(2)));
-        }
-        const { payout, profit, settledAt, ...rest } = b;
-        return { ...rest, status: "open" };
-      })
-    );
+    const bet = bets.find((b) => b.id === id);
+    if (!bet) return;
+
+    if ((bet.status === "win" || bet.status === "cashedout") && bet.payout) {
+      setBalance((bal) => Number((bal - bet.payout).toFixed(2)));
+    }
+
+    const { payout, profit, settledAt, ...rest } = bet;
+    setBets((prev) => prev.map((b) => (b.id === id ? { ...rest, status: "open" } : b)));
   }
 
   function cashOutBet(id, amount) {
+    const bet = bets.find((b) => b.id === id);
+    if (!bet) return;
+
+    const payout = Number(amount.toFixed(2));
+    setBalance((bal) => Number((bal + payout).toFixed(2)));
+
     setBets((prev) =>
-      prev.map((b) => {
-        if (b.id !== id) return b;
-        const payout = Number(amount.toFixed(2));
-        setBalance((bal) => Number((bal + payout).toFixed(2)));
-        return {
-          ...b,
-          status: "cashedout",
-          payout,
-          profit: Number((payout - b.wagerDollars).toFixed(2)),
-          settledAt: new Date().toISOString(),
-        };
-      })
+      prev.map((b) =>
+        b.id === id
+          ? {
+              ...b,
+              status: "cashedout",
+              payout,
+              profit: Number((payout - bet.wagerDollars).toFixed(2)),
+              settledAt: new Date().toISOString(),
+            }
+          : b
+      )
     );
   }
 

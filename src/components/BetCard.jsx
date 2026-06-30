@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatAmerican, estimateCashout } from "../lib/odds";
+import { formatAmerican } from "../lib/odds";
 import { RibbonBadge, MarketLabel, Monogram } from "./Pill";
 
 const IS_MULTI_LEG = (type) => ["parlay", "sgp", "sgpplus"].includes(type);
@@ -41,6 +41,17 @@ function ReuseIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="#0073e6" strokeWidth="1.6" />
       <path d="M12 8v8M8 12h8" stroke="#0073e6" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CashOutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="7" width="18" height="13" rx="1.5" stroke="#fff" strokeWidth="1.8" />
+      <path d="M3 11h18" stroke="#fff" strokeWidth="1.8" />
+      <path d="M8 4h8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="15.5" r="2.3" stroke="#fff" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -103,12 +114,6 @@ export default function BetCard({
 
   const legSummary = isMulti ? bet.legs.map((l) => l.description).join(", ") : "";
 
-  const cashout = isMulti && isOpen ? estimateCashout(bet.wagerDollars, bet.legs, bet.legResults || {}) : null;
-
-  const [customCashOut, setCustomCashOut] = useState(() =>
-    (cashout?.eligible ? cashout.amount : bet.wagerDollars).toFixed(2)
-  );
-
   async function handleShare() {
     const text = buildShareText(bet);
     if (navigator.share) {
@@ -139,9 +144,8 @@ export default function BetCard({
     setTimeout(() => setShareMsg(""), 2000);
   }
 
-  function handleCustomCashOut() {
-    const amount = Number(customCashOut);
-    if (Number.isFinite(amount) && amount >= 0) onCashOut?.(bet.id, amount);
+  function handleCashOut() {
+    onCashOut?.(bet.id, bet.wagerDollars);
   }
 
   return (
@@ -248,33 +252,16 @@ export default function BetCard({
       </div>
 
       {isOpen && (
-        <div className="px-4 pb-3">
-          <div className="bg-fd-card2 rounded flex items-center justify-between px-3 py-2.5 gap-2">
-            <div className="flex-1 min-w-0">
-              <div className="text-fd-gray text-[10px] font-semibold uppercase tracking-wide">
-                {cashout?.eligible ? "Estimated Cash Out" : "Cash Out"}
-              </div>
-              <div className="relative mt-0.5">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-fd-green font-extrabold text-base">
-                  $
-                </span>
-                <input
-                  value={customCashOut}
-                  onChange={(e) => setCustomCashOut(e.target.value)}
-                  inputMode="decimal"
-                  className="w-full bg-transparent text-fd-green font-extrabold text-base outline-none pl-3"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleCustomCashOut}
-              className="px-4 py-2 rounded-full bg-fd-green text-black font-bold text-[12.5px] active:scale-[0.97] transition shrink-0"
-            >
-              Cash Out
-            </button>
-          </div>
+        <div className="px-4 pb-3 space-y-2.5">
+          <button
+            onClick={handleCashOut}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-fd-green text-white font-bold text-[14px] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(0,214,114,0.25)]"
+          >
+            <CashOutIcon />
+            Cashout {fmtMoney(bet.wagerDollars)}
+          </button>
 
-          <div className="mt-3 grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               onClick={() => onReuse?.(bet)}
               className="flex items-center justify-center gap-1.5 py-2 rounded-full border border-fd-blue text-fd-blue font-bold text-[12.5px] active:bg-fd-blue/10"
