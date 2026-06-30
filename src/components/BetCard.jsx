@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatAmerican } from "../lib/odds";
+import { formatAmerican, estimateCashout } from "../lib/odds";
 import { RibbonBadge, MarketLabel, Monogram } from "./Pill";
 
 const IS_MULTI_LEG = (type) => ["parlay", "sgp", "sgpplus"].includes(type);
@@ -45,13 +45,13 @@ function ReuseIcon() {
   );
 }
 
-function CashOutIcon() {
+function CashOutIcon({ color = "#fff" }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="7" width="18" height="13" rx="1.5" stroke="#fff" strokeWidth="1.8" />
-      <path d="M3 11h18" stroke="#fff" strokeWidth="1.8" />
-      <path d="M8 4h8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="12" cy="15.5" r="2.3" stroke="#fff" strokeWidth="1.6" />
+      <rect x="3" y="7" width="18" height="13" rx="1.5" stroke={color} strokeWidth="1.8" />
+      <path d="M3 11h18" stroke={color} strokeWidth="1.8" />
+      <path d="M8 4h8" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="15.5" r="2.3" stroke={color} strokeWidth="1.6" />
     </svg>
   );
 }
@@ -114,6 +114,10 @@ export default function BetCard({
 
   const legSummary = isMulti ? bet.legs.map((l) => l.description).join(", ") : "";
 
+  const cashout = isMulti && isOpen ? estimateCashout(bet.wagerDollars, bet.legs, bet.legResults || {}) : null;
+  const cashoutAmount = cashout?.eligible ? cashout.amount : bet.wagerDollars;
+  const cashoutDisabled = Boolean(cashout?.dead);
+
   async function handleShare() {
     const text = buildShareText(bet);
     if (navigator.share) {
@@ -145,7 +149,8 @@ export default function BetCard({
   }
 
   function handleCashOut() {
-    onCashOut?.(bet.id, bet.wagerDollars);
+    if (cashoutDisabled) return;
+    onCashOut?.(bet.id, cashoutAmount);
   }
 
   return (
@@ -255,10 +260,15 @@ export default function BetCard({
         <div className="px-4 pb-3 space-y-2.5">
           <button
             onClick={handleCashOut}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-fd-green text-white font-bold text-[14px] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(0,214,114,0.25)]"
+            disabled={cashoutDisabled}
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-[14px] transition ${
+              cashoutDisabled
+                ? "bg-fd-card2 text-fd-gray cursor-not-allowed"
+                : "bg-fd-green text-white active:scale-[0.98] shadow-[0_2px_8px_rgba(0,214,114,0.25)]"
+            }`}
           >
-            <CashOutIcon />
-            Cashout {fmtMoney(bet.wagerDollars)}
+            <CashOutIcon color={cashoutDisabled ? "#999b9f" : "#fff"} />
+            {cashoutDisabled ? "Cash out unavailable" : `Cashout ${fmtMoney(cashoutAmount)}`}
           </button>
 
           <div className="grid grid-cols-2 gap-2.5">
