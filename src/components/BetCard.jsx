@@ -105,6 +105,10 @@ export default function BetCard({
 
   const cashout = isMulti && isOpen ? estimateCashout(bet.wagerDollars, bet.legs, bet.legResults || {}) : null;
 
+  const [customCashOut, setCustomCashOut] = useState(() =>
+    (cashout?.eligible ? cashout.amount : bet.wagerDollars).toFixed(2)
+  );
+
   async function handleShare() {
     const text = buildShareText(bet);
     if (navigator.share) {
@@ -135,8 +139,9 @@ export default function BetCard({
     setTimeout(() => setShareMsg(""), 2000);
   }
 
-  function handleCashOut() {
-    if (cashout?.eligible) onCashOut?.(bet.id, cashout.amount);
+  function handleCustomCashOut() {
+    const amount = Number(customCashOut);
+    if (Number.isFinite(amount) && amount >= 0) onCashOut?.(bet.id, amount);
   }
 
   return (
@@ -244,26 +249,30 @@ export default function BetCard({
 
       {isOpen && (
         <div className="px-4 pb-3">
-          {cashout?.eligible ? (
-            <div className="bg-fd-card2 rounded flex items-center justify-between px-3 py-2.5">
-              <div>
-                <div className="text-fd-gray text-[10px] font-semibold uppercase tracking-wide">
-                  Estimated Cash Out
-                </div>
-                <div className="text-fd-green font-extrabold text-base">{fmtMoney(cashout.amount)}</div>
+          <div className="bg-fd-card2 rounded flex items-center justify-between px-3 py-2.5 gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-fd-gray text-[10px] font-semibold uppercase tracking-wide">
+                {cashout?.eligible ? "Estimated Cash Out" : "Cash Out"}
               </div>
-              <button
-                onClick={handleCashOut}
-                className="px-4 py-2 rounded-full bg-fd-green text-black font-bold text-[12.5px] active:scale-[0.97] transition"
-              >
-                Cash Out
-              </button>
+              <div className="relative mt-0.5">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-fd-green font-extrabold text-base">
+                  $
+                </span>
+                <input
+                  value={customCashOut}
+                  onChange={(e) => setCustomCashOut(e.target.value)}
+                  inputMode="decimal"
+                  className="w-full bg-transparent text-fd-green font-extrabold text-base outline-none pl-3"
+                />
+              </div>
             </div>
-          ) : (
-            <div className="bg-fd-card2 text-fd-gray text-[12px] font-semibold text-center py-2.5">
-              {cashout?.dead ? "Cash out unavailable — bet no longer live" : "Cash out unavailable"}
-            </div>
-          )}
+            <button
+              onClick={handleCustomCashOut}
+              className="px-4 py-2 rounded-full bg-fd-green text-black font-bold text-[12.5px] active:scale-[0.97] transition shrink-0"
+            >
+              Cash Out
+            </button>
+          </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             <button
