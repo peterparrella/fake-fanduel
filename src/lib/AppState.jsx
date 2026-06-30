@@ -192,9 +192,15 @@ export function AppStateProvider({ children }) {
   }
 
   const stats = useMemo(() => {
-    const settled = bets.filter((b) => b.status === "win" || b.status === "loss" || b.status === "cashedout");
+    // A cashout for exactly the wager amount (profit === 0) is a wash, not a
+    // win or loss — it shouldn't touch record, wagered totals, profit, or ROI.
+    const settled = bets.filter((b) => {
+      if (b.status === "win" || b.status === "loss") return true;
+      if (b.status === "cashedout") return b.profit !== 0;
+      return false;
+    });
     const wins = settled.filter((b) => b.status === "win" || (b.status === "cashedout" && b.profit > 0));
-    const losses = settled.filter((b) => b.status === "loss" || (b.status === "cashedout" && b.profit <= 0));
+    const losses = settled.filter((b) => b.status === "loss" || (b.status === "cashedout" && b.profit < 0));
     const totalWagered = settled.reduce((sum, b) => sum + b.wagerDollars, 0);
     const totalProfit = settled.reduce((sum, b) => sum + (b.profit || 0), 0);
     const roi = totalWagered > 0 ? (totalProfit / totalWagered) * 100 : 0;
