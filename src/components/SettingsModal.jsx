@@ -8,6 +8,7 @@ export default function SettingsModal({ onClose }) {
     setUnitSize,
     setNewStartingBalance,
     resetBalance,
+    scaleBankroll,
     fullReset,
     exportData,
     importData,
@@ -15,6 +16,7 @@ export default function SettingsModal({ onClose }) {
   const [balanceInput, setBalanceInput] = useState(String(startingBalance));
   const [unitInput, setUnitInput] = useState(String(unitSize));
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmScale, setConfirmScale] = useState(false);
   const [importMsg, setImportMsg] = useState("");
   const fileInputRef = useRef(null);
 
@@ -131,6 +133,40 @@ export default function SettingsModal({ onClose }) {
           </div>
 
           <div className="pt-2 border-t border-fd-border space-y-2">
+            {!confirmScale ? (
+              <button
+                onClick={() => setConfirmScale(true)}
+                className="w-full py-2.5 rounded-full border border-fd-gold text-fd-gold font-semibold text-sm"
+              >
+                Scale Everything ×10 ($25u → $250u)
+              </button>
+            ) : (
+              <div>
+                <p className="text-xs text-fd-gray mb-2 text-center">
+                  This multiplies your balance, unit size, and all bet amounts by 10. Cannot be undone.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmScale(false)}
+                    className="flex-1 py-2.5 rounded-full border border-fd-border text-fd-gray font-semibold text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      scaleBankroll(10);
+                      setConfirmScale(false);
+                      setBalanceInput(String(startingBalance * 10));
+                      setUnitInput(String(unitSize * 10));
+                    }}
+                    className="flex-1 py-2.5 rounded-full bg-fd-gold text-black font-bold text-sm"
+                  >
+                    Confirm ×10
+                  </button>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={resetBalance}
               className="w-full py-2.5 rounded-full border border-fd-blue text-fd-blue font-semibold text-sm"

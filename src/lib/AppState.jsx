@@ -144,6 +144,20 @@ export function AppStateProvider({ children }) {
     setBalance(amount);
   }
 
+  function scaleBankroll(factor) {
+    setStartingBalance((v) => Number((v * factor).toFixed(2)));
+    setBalance((v) => Number((v * factor).toFixed(2)));
+    setUnitSize((v) => Number((v * factor).toFixed(2)));
+    setBets((prev) =>
+      prev.map((b) => ({
+        ...b,
+        wagerDollars: Number((b.wagerDollars * factor).toFixed(2)),
+        ...(b.payout != null ? { payout: Number((b.payout * factor).toFixed(2)) } : {}),
+        ...(b.profit != null ? { profit: Number((b.profit * factor).toFixed(2)) } : {}),
+      }))
+    );
+  }
+
   function fullReset() {
     setStartingBalance(DEFAULT_BALANCE);
     setBalance(DEFAULT_BALANCE);
@@ -230,6 +244,7 @@ export function AppStateProvider({ children }) {
     deleteBet,
     resetBalance,
     setNewStartingBalance,
+    scaleBankroll,
     fullReset,
     exportData,
     importData,
